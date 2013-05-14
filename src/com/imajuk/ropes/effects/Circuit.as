@@ -30,7 +30,7 @@
             var q : PointQuery = cp.pointQuery;
             q.time = q.rate + t;
 
-            return shape.getPoint(q);
+            return shape.getPointOnControlPointsLocus(q);
         }
 
         public function execLoopEndTask() : void

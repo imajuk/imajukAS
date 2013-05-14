@@ -1,12 +1,12 @@
 ﻿package com.imajuk.ropes.shapes
 {
-    import com.imajuk.ropes.models.ControlPoint;
     import com.imajuk.drawing.BezierSegment;
     import com.imajuk.geom.Segment;
     import com.imajuk.geom.Vector2D;
     import com.imajuk.interfaces.IMotionGuide;
-    import com.imajuk.ropes.models.PointQuery;
     import com.imajuk.ropes.models.APoint;
+    import com.imajuk.ropes.models.ControlPoint;
+    import com.imajuk.ropes.models.PointQuery;
 
     import flash.geom.Point;
 
@@ -73,6 +73,10 @@
             return "RopeShape[" + _name + "]";
         }
 
+        /**
+         * このシェイプが持つ曲線の任意の1点を返します.
+         * @param q
+         */
         public function getPoint(q : PointQuery) : Point
         {
             var time : Number = q.time;
@@ -96,6 +100,36 @@
             BEZIER_FOR_CALC.d = ap_nx ? new Point(ap_nx.x, ap_nx.y) : POINT;
             
             return BEZIER_FOR_CALC.getValue(local_time);
+        }
+        
+        /**
+         * このシェイプに定義されているコントロールポイントを結ぶ直線上の任意の1点を返します.
+         */
+        public function getPointOnControlPointsLocus(q : PointQuery) : Point
+        {
+            var time : Number = q.time,
+                u : Number,
+                s : IMotionGuide;
+
+            if (time < 0)
+            {
+                var b : Segment = Segment(_segments[0]);
+                return b.begin;
+            }
+
+            if (time > 1)
+                time %= 1;
+            u = 1 / _segments.length;
+            try
+            {
+                s = _segments[int(time / u)];
+            }
+            catch(e : Error)
+            {
+                s = _segments[_segments.length - 1];
+            }
+
+            return s.getValue((time % u) / u);
         }
 
         public function getVector(time : Number) : Vector2D
