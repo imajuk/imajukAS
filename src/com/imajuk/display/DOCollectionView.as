@@ -95,6 +95,10 @@
         //  API (Property)
         //
         //--------------------------------------------------------------------------
+        public function get numImages() : int
+        {
+            return _imgContainer.numChildren;
+        }
         protected var _currentIndex : int = -1;
         public function get currentIndex() : int
         {

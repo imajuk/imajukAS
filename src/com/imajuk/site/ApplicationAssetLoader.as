@@ -78,6 +78,7 @@
             // whole task of loading assets and creating view
             //------------------------------------------------
             var p:ParallelExecutor = new ParallelExecutor();
+            p.name = "construction request task " + p.id;
             //------------------------------------------------
             // loading request
             //------------------------------------------------

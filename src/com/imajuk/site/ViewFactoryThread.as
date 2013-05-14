@@ -57,6 +57,7 @@
                         return new WaitMonitorThread(m);
                     })
                 );
+            p.name = "waiting asset loading "+id;
             p.start();
             p.join();
             

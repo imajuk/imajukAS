@@ -81,7 +81,7 @@
             new ErrorCatchThread(
                 function() : void
                 {
-                	var receipt:XML = <root><{new Reference(ErrorView)} src="testAsset/dammy.gif" /></root>;
+                	var receipt:XML = <root><{new Reference(ErrorView)} src="dammy.gif" /></root>;
                 	var a:ApplicationAssetLoader = new ApplicationAssetLoader();
                 	a.getConstructionTaskFromRecipe(receipt).start();
                     
@@ -313,7 +313,7 @@
             new ErrorCatchThread(
                 function() : void
                 {
-                    var recipe:XML = <{Recipe.ASSET}><DOESNT_EXIST src="testAsset/dammy.gif"/></{Recipe.ASSET}>;
+                    var recipe:XML = <{Recipe.ASSET}><DOESNT_EXIST src="dammy.gif"/></{Recipe.ASSET}>;
                     //StateAにはDOESNT_EXISTは[inject]指定されていないのでコンパイルされない
                     var recipe2:XML = <{Recipe.STATE}><{new Reference(StateA)}/></{Recipe.STATE}>;
                     var app:Application = new Application("app", DocumentClass.container);

@@ -97,8 +97,8 @@
                 }
             );
             
-            //プログレス処理開始
-            progressThread = progressInfo ? ProgressThread.create(progressInfo) : new Thread();
+            //プログレスビューがあればプログレスビュー更新スレッド開始
+            progressThread = (progressInfo && progressInfo.progressView) ? ProgressThread.create(progressInfo) : new Thread();
             progressThread.start();
             
             waitEvent();

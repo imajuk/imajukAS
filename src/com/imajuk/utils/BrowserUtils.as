@@ -111,8 +111,11 @@
 
         public static function getURLParameters() : Object
         {
+            var o : Object = {};
         	if (ExternalInterface.available)
             {
+                try
+                {
             	var s:String = ExternalInterface.call("eval", "document.location.search.toString()");
                 if (s.length == 0)
                     return {};
@@ -122,15 +125,19 @@
                     return {};
             	   
             	var params:Array = s.split("&");   
-            	var o:Object = {};
                 params.forEach(function(param:String, ...p) : void
                 {
                 	var a:Array = param.split("=");
                 	o[a[0]] = a[1];
                 });
+                }
+                catch(e:Error)
+                {
             	return o;
             }
-            return [];
+            	return o;
+            }
+            return o;
         }
     }
 }
