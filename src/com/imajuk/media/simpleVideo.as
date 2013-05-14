@@ -1,0 +1,1 @@
+﻿package com.imajuk.media {/** * @author yamaharu */public namespace simpleVideo;}

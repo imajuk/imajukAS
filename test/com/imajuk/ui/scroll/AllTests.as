@@ -1,0 +1,1 @@
+﻿package com.imajuk.ui.scroll{    import org.libspark.as3unit.runners.Suite;        import com.imajuk.ui.scroll.ScrollContainerTest;    public class AllTests	{		public static const RunWith:Class = Suite;		public static const SuiteClasses:Array = 	[														ScrollContainerTest													];	}}

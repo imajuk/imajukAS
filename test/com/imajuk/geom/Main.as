@@ -1,0 +1,2 @@
+﻿package com.imajuk.geom{    import com.imajuk.utils.StageReference;	    import org.libspark.as3unit.runner.AS3UnitCore;    import flash.display.*;
+    /**     * @author yamaharu     */    public class Main extends Sprite     {        public function Main()         {            StageReference.initialize(this as DisplayObject);            AS3UnitCore.main(AllTests);        }    }}

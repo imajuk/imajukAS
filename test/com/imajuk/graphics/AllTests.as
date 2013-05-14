@@ -1,0 +1,2 @@
+﻿package com.imajuk.graphics{	import org.libspark.as3unit.runners.Suite;
+	public class AllTests	{		public static const RunWith:Class = Suite;		public static const SuiteClasses:Array = 	[														AlignTest,														Align_Stage_Test,//														Align_DocumentClass_Test,//														Align_DC_Level1_Test//														Align_Matrix_Test,													];	}}

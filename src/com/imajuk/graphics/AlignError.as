@@ -1,0 +1,8 @@
+﻿package com.imajuk.graphics {
+    /**
+     * @author yamaharu
+     */
+    public class AlignError extends Error     {
+        public static const UNINITIALIZATION:String = "Alignを使用するにはStageReferenceが初期化されてなければなりません.";        public static const INVALID_TARGET_STAGE:String = "Stageをターゲットオブジェクトにすることはできません.";        public static const INVALID_TARGET_DOCUMENTCLASS:String = "ドキュメントクラスをターゲットオブジェクトにすることはできません.";        public static const INVALID_TARGET_DISPLAYLIST:String = "ターゲットのstageプロパティを取得できませんでした.ターゲットは表示リスト含まれている必要があります.";        public static const INVALID_CONTAINER_SAMEASTARGET:String = "ターゲットオブジェクトと座標系オブジェクトが同一です.";        public static const INVALID_CONTAINER_NOSIZE:String = "座標系となるオブジェクトがサイズを持っていません.";        public static var INVALID_CONTAINER_LESSCHILD:String = "#Coordinate#を座標系オブジェクトとして実行しようとしましたが、#Coordinate#はターゲット以外の子をもちません.";        public static const UNINITIALIZATION_ID:int = 0;        public static const INVALID_TARGET_STAGE_ID:int = 1;        public static const INVALID_TARGET_DISPLAYLIST_ID:int = 2;        public static const INVALID_TARGET_DOCUMENTCLASS_ID:int = 3;        public static const INVALID_CONTAINER_SAMEASTARGET_ID:int = 4;        public static const INVALID_CONTAINER_NOSIZE_ID:int = 5;        public static const INVALID_CONTAINER_LESSCHILD_ID:int = 6;        public function AlignError(message:String, id:int, coordinateName:String="")        {
+            if (message == INVALID_CONTAINER_LESSCHILD)                message = INVALID_CONTAINER_LESSCHILD.split("#Coordinate#").join(coordinateName);                            super(message, id);        }    }
+}

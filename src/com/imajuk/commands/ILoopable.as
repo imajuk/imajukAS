@@ -1,0 +1,1 @@
+package com.imajuk.commands {    /**     * @author yamaharu     */    public interface ILoopable     {        /**         * ループするかどうか.         */        function get loop():Boolean;        function set loop(value:Boolean):void;    }}

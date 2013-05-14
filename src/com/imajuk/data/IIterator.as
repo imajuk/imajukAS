@@ -1,0 +1,3 @@
+﻿package com.imajuk.data {
+    /**     * 反復処理のインターフェイス.     *      * <p>Interface of iteration.</p>     *      * @author	yamaharu     */    public interface IIterator     {        /**         * まだイテレートする対象があるかどうかを返します.         *          * <p>Returns whether component has a next iterated object.</p>         */        function hasNext():Boolean;        /**         * イテレーションの次の対象を返します.         *          * <p>Returns a next iterated object.</p>         */        function next():*;        /**         * イテレータの現在の位置を返します.         *          * <p>position of current iteration.</p>         */        function get position():int;    }
+}

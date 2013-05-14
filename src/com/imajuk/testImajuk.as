@@ -1,0 +1,1 @@
+﻿package com.imajuk {/** * @author imajuk */public namespace testImajuk = "http://www.imajuk.com/test";}

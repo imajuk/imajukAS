@@ -1,0 +1,2 @@
+﻿package com.imajuk.site{    import flash.display.Bitmap;
+    import flash.display.Sprite;    /**     * @author shinyamaharu     */    public class ViewA extends Sprite     {        public var asset : Bitmap;        public function ViewA(asset : Bitmap)        {            this.asset = addChild(asset) as Bitmap;                        init();        }        public function init() : void         {            alpha = 0;        }    }}

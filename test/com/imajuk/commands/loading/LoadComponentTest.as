@@ -1,0 +1,30 @@
+﻿package com.imajuk.commands.loading
+{
+    import com.imajuk.interfaces.IProgess;
+    import com.imajuk.events.AsyncEvent;
+    import com.imajuk.logs.Logger;
+
+    import org.libspark.as3unit.after;
+    import org.libspark.as3unit.assert.*;
+    import org.libspark.as3unit.before;
+    import org.libspark.as3unit.test;
+
+    import flash.display.*;
+    import flash.events.Event;
+    import flash.events.ProgressEvent;
+    import flash.net.URLRequest;
+    
+	use namespace test;	use namespace before;	use namespace after;
+		internal class LoadComponentTest extends Sprite	{		before function setupSample () : void		{		}		/**		 * スタートイベント配信直後は、まだbytesTotalを取得できない		 */		test function bytesLoaded_start () : void		{
+			Logger.release("bytesLoaded_start");
+						var comp : LoadCommandComposite = new LoadCommandComposite();			comp.sequential = true;			var item1 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));			var item2 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));			comp.add(item1);			comp.add(item2);						comp.addEventListener(AsyncEvent.START, async(function():void			{				assertEquals(0, item1.value);				assertEquals(0, item1.percent);				assertEquals(0, comp.value);				assertEquals(0, comp.percent);			}, 1000));			comp.execute();		}        /**         * ロード終了のテスト         * アイテム2個中1個完了         */		test function loaded_1of2 () : void		{
+			Logger.release("loaded_1of2");
+						var comp : LoadCommandComposite = new LoadCommandComposite();			comp.sequential = true;			var item1 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));			var item2 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));			comp.add(item1);			comp.add(item2);						item1.addEventListener(Event.COMPLETE, async(function():void			{				assertEquals(2203, item1.value);				assertEquals(0,    item2.value);				assertEquals(2203, comp.value);				assertEquals(1,    item1.percent);				assertEquals(0,    item2.percent);				assertEquals(0.5,  comp.percent);			}, 1000));			comp.execute();		}        /**         * ロード終了のテスト         * アイテム2個中2個完了         */		test function loaded_all () : void		{
+			Logger.release("loaded_all");
+						var comp : LoadCommandComposite = new LoadCommandComposite();			comp.sequential = true;			var item1 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));			var item2 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));			comp.add(item1);			comp.add(item2);									comp.addEventListener(Event.COMPLETE, async(function():void			{				assertEquals(2203, item1.value);				assertEquals(2203, item2.value);				assertEquals(2203 * 2, comp.value);				assertEquals(2203, item1.total);				assertEquals(2203, item2.total);				assertEquals(2203 * 2, comp.total);				assertEquals(1, item1.percent);				assertEquals(1, item2.percent);				assertEquals(1, comp.percent);			}, 1000));			comp.execute();		}				/**		 * スタート後にキューを追加		 */		test function add_queue_after_starting () : void        {
+        	Logger.release("add_queue_after_starting");
+        	            var comp : LoadCommandComposite = new LoadCommandComposite();            comp.sequential = true;            var item1 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));            var item2 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));            comp.add(item1);            comp.add(item2);                        comp.addEventListener(Event.COMPLETE, async(function():void            {                assertEquals(2203, item1.value);                assertEquals(2203, item1.total);                assertEquals(1, item1.percent);                                assertEquals(2203, item2.value);                assertEquals(2203, item2.total);                assertEquals(1, item2.percent);                                assertEquals(2203 * 3, comp.value);                assertEquals(2203 * 3, comp.total);                                assertEquals(1, comp.percent);            }, 1000));            comp.execute();                        //=================================            // スタート後キューを追加            //=================================            var item3 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));            comp.add(item3);        }		/**		 * IProgress.percentLoadedは、ロード開始から終了まで決して減少しないことを保証する		 */		test function progress () : void		{
+			Logger.release("progress");
+						var comp : LoadCommandComposite = new LoadCommandComposite();			comp.sequential = true;			var item1 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));			var item2 : LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));			comp.add(item1);			comp.add(item2);						var chk : Number = 0;			comp.addEventListener(ProgressEvent.PROGRESS, function(e : ProgressEvent):void			{				assertTrue(IProgess(e.target).percent >= chk);				chk = IProgess(e.target).percent;			});			comp.addEventListener(Event.COMPLETE, async(function():void			{				assertEquals(1, comp.percent);			}, 1000));						comp.execute();		}				test function pause():void        {
+        	Logger.release("pause");
+        	            var comp:LoadCommandComposite = new LoadCommandComposite();            comp.sequential = true;            var item1:LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));            var item2:LoadCommandLeaf = new LoadCommandLeaf(new URLRequest("testAsset/testAsset.swf"));            comp.add(item1);            comp.add(item2);                        comp.addEventListener(Event.COMPLETE, function():void            {                fail("このイベントは発行されない.");            });                        comp.execute();            assertTrue(comp.pause());        }		after function teardownSample () : void		{		}	}}
