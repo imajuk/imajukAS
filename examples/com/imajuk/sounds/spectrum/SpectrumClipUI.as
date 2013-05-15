@@ -5,7 +5,7 @@
     import com.bit101.components.HRangeSlider;
     import com.bit101.components.HUISlider;
     import com.bit101.components.RangeSlider;
-    import com.imajuk.sounds.SoundSpectrumWatcher;
+
     import flash.display.Sprite;
     import flash.events.Event;
 
@@ -19,6 +19,7 @@
         internal var spectrum_partition : HUISlider;
         internal var samplingRate : ComboBox;
         internal var fftmode : CheckBox;
+        internal var mic : CheckBox;
 
         public function SpectrumClipUI()
         {
@@ -55,7 +56,7 @@
             samplingRate = new ComboBox(this, 700, oy, "44.1KHz", [{label:"44.1KHz", value:0}, {label:"22.05KHz", value:1}, {label:"11.025KHz", value:2}]);
             samplingRate.addEventListener(Event.SELECT, function() : void
             {
-                SoundSpectrumWatcher.stretchFactor = samplingRate.selectedItem.value;
+                dispatchEvent(new SpectrumViewEvent(SpectrumViewEvent.CHANGE_STRETCH_FACTOR));
             });
             
             oy += 30;
@@ -65,6 +66,15 @@
                 dispatchEvent(new SpectrumViewEvent(SpectrumViewEvent.CHANGE_FFT_MODE));
             });
             fftmode.selected = true;
+            
+            oy += 20;
+            
+            mic = new CheckBox(this, 700, oy, "from mic", function() : void
+            {
+                dispatchEvent(new SpectrumViewEvent(SpectrumViewEvent.CHANGE_MIC_MODE));
+            });
+            mic.selected = false;
+            
         }
     }
 }

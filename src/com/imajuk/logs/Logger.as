@@ -18,7 +18,7 @@
         public static const ERROR : uint        = parseInt("00001000", 2);
         public static const INTERNAL : uint     = parseInt("00000001", 2);
         public static const NO_FILTER : uint    = parseInt("00000000", 2);
-        private static var currentFilter : uint = parseInt("00111000", 2);
+        public static var currentFilter : uint = parseInt("00111000", 2);
         
         public static const BASIC       : IOutput = new BasicTrace();
         public static const EXTERNAL    : IOutput = new ExternalTrace();

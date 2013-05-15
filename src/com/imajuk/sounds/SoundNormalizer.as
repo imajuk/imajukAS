@@ -1,6 +1,8 @@
 ﻿package com.imajuk.sounds
 {
-    import org.libspark.thread.Thread;
+    import flash.events.Event;
+    import flash.utils.Dictionary;
+    import com.imajuk.threads.ThreadUtil;
 
     import flash.display.GraphicsPath;
     import flash.display.GraphicsSolidFill;
@@ -18,12 +20,35 @@
         public static var isDebug       : Boolean;
         private static var display_level : Shape;
         private static var bin : ByteArray;
-        
+        private static var dispatchQueue : Dictionary = new Dictionary(true);
 
-        public static function normalize(result : ByteArray) : Thread
+        /**
+         * load sound file and normalize it.
+         * 
+         * IMPORTANT
+         *   SoundNormalizer uses Worker that is latest Flash tecnology.
+         *   You need to compile your project with the compiler option 'swf-version=17'.
+         *   The project will require the version Flash Player 11.4 or later.
+         * 
+         * Here's the example how to normilize and play the sound.
+         * 
+         *  SoundNormalizer.loadAndNormalize("http://imajuk.com/music.mp3");
+         *  SoundNormalizer.addEventListener(SoundNormalizerEvent.COMPLETE, function(e : SoundNormalizerEvent) : void
+         *  {
+         *      // the sound loaded and normalized.
+         *      // you can play the binary with SoundBinaryPlayer.
+         *      new SoundBinaryPlayer().play(e.soundBinary);
+         *   });
+         *   
+         */
+        public static function loadAndNormalize(sound_url : String) : void
         {
-            return new NormalizeSoundThread(result);
-        }
+            ThreadUtil.initAsEnterFrame();
+            
+            var soundBinary:ByteArray = new ByteArray();
+            soundBinary.shareable = true;
+            new SoundNormalizerThread(sound_url, soundBinary, dispatchEvent).start();
+        }        
 
         internal static function drawDebugDisplay() : void
         {
@@ -75,5 +100,23 @@
             bin.shareable = true;
             return bin;
         }
+
+        public static function addEventListener(eventtype : String, listener : Function) : void
+        {
+            dispatchQueue[eventtype] = dispatchQueue[eventtype] || new Vector.<Function>; 
+            dispatchQueue[eventtype].push(listener);
+        }
+        
+        public static function dispatchEvent(event:Event):void
+        {
+            var listenrs:Vector.<Function> = dispatchQueue[event.type];
+            if (!listenrs) return;
+            
+            while(listenrs.length > 0)
+            {
+                listenrs.shift()(event);
+            }
+        }
     }
 }
+

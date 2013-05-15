@@ -35,8 +35,6 @@
         
         public function NormalizeWokerMain()
         {
-            Logger.show(Logger.INFO);
-            
             reset();
             waitSoundBinary();
         }
@@ -51,6 +49,8 @@
                 if (shared)
                 {
                     clearInterval(interval);
+
+                    Logger.show(int(Worker.current.getSharedProperty("log")));
                     
                     loops  = shared.length;
                     copy   = new ByteArray();

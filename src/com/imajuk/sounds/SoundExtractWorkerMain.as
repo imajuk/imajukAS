@@ -26,8 +26,6 @@
         
         public function SoundExtractWorkerMain()
         {
-            Logger.show(Logger.INFO);
-            
             reset();
             waitRequest();
         }
@@ -42,6 +40,7 @@
                 if (shared)
                 {
                     clearInterval(interval);
+                    Logger.show(int(Worker.current.getSharedProperty("log")));
                     loadSound();
                 }
                 
@@ -69,7 +68,7 @@
             
             reset();
             
-            Logger.info(1, 'complete.');
+            Logger.info(1, 'extract sound complete.');
             Worker.current.setSharedProperty("complete", true);
         }
 

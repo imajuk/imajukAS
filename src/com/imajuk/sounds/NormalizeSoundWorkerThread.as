@@ -1,5 +1,6 @@
 ﻿package com.imajuk.sounds
 {
+    import com.imajuk.logs.Logger;
     import org.libspark.thread.Thread;
 
     import flash.events.Event;
@@ -11,43 +12,48 @@
     /**
      * @author shinyamaharu
      */
-    public class LoadSoundThread extends Thread
+    public class NormalizeSoundWorkerThread extends Thread 
     {
-        [Embed(source="soundExtractWorker.swf", mimeType="application/octet-stream")] 
-        private static var SoundExtractWorker : Class;
+        [Embed(source="normalizeWoker.swf", mimeType="application/octet-stream")] 
+        private static var NormalizeWoker : Class;
         private static var worker : Worker;
-        
-        private var song_url : String;
+
         private var soundBinary : ByteArray;
 
-        public function LoadSoundThread(soundBinary : ByteArray, song_url : String)
+        public function NormalizeSoundWorkerThread(soundBinary : ByteArray)
         {
             super();
 
             this.soundBinary = soundBinary;
-            this.song_url = song_url;
         }
 
         override protected function run() : void
+        {
+            if (SoundNormalizer.isDebug) SoundNormalizer.resetDebugDisplay();
+            
+            next(extractSound);
+        }
+
+        private function extractSound() : void
         {
             next(createWorker);
         }
 
         private function createWorker() : void
         {
-            worker = WorkerDomain.current.createWorker(new SoundExtractWorker());
+            worker = WorkerDomain.current.createWorker(new NormalizeWoker());
             event(worker, Event.WORKER_STATE, setupWorker);
             worker.start(); 
         }
-        
+
         private function setupWorker(event:Event):void 
         { 
             if (worker.state == WorkerState.RUNNING) 
             { 
-                worker.setSharedProperty("soundBinary", soundBinary);
-                worker.setSharedProperty("soundURL", song_url);
+                worker.setSharedProperty("result", soundBinary);
                 worker.setSharedProperty("complete", false);
-                worker.setSharedProperty("error", false);
+                worker.setSharedProperty("debug", SoundNormalizer.getGraphicsData());
+                worker.setSharedProperty("log", Logger.currentFilter);
             } 
 
             next(waitWokersTask);
@@ -55,18 +61,14 @@
         
         private function waitWokersTask() : void
         {
-            if (worker.getSharedProperty("error"))
-            {
-                throw new Error();
-                return;
-            }
-            
             if (!worker.getSharedProperty("complete"))
                 next(waitWokersTask);
         }
 
         override protected function finalize() : void
         {
+            if (SoundNormalizer.isDebug)
+                SoundNormalizer.drawDebugDisplay();
         }
     }
 }
