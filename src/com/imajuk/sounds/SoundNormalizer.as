@@ -21,6 +21,7 @@
         private static var display_level : Shape;
         private static var bin : ByteArray;
         private static var dispatchQueue : Dictionary = new Dictionary(true);
+        private static var soundData : SoundData;
 
         /**
          * load sound file and normalize it.
@@ -45,9 +46,12 @@
         {
             ThreadUtil.initAsEnterFrame();
             
-            var soundBinary:ByteArray = new ByteArray();
-            soundBinary.shareable = true;
-            new SoundNormalizerThread(sound_url, soundBinary, dispatchEvent).start();
+            soundData = new SoundData();
+            soundData._binary = new ByteArray();
+            soundData._binary.shareable = true;
+            soundData._url = sound_url;
+            
+            new SoundNormalizerThread(soundData, dispatchEvent).start();
         }        
 
         internal static function drawDebugDisplay() : void

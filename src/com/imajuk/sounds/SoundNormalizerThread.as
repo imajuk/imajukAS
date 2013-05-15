@@ -2,24 +2,20 @@
 {
     import org.libspark.thread.Thread;
 
-    import flash.utils.ByteArray;
-
     internal class SoundNormalizerThread extends Thread
     {
-        private var soundBinary : ByteArray;
-        private var sound_url : String;
         private var callback : Function;
+        private var soundData : SoundData;
 
-        public function SoundNormalizerThread(sound_url : String, soundBinary : ByteArray, callback : Function)
+        public function SoundNormalizerThread(soundData : SoundData, callback : Function)
         {
-            this.soundBinary = soundBinary;
-            this.sound_url   = sound_url;
-            this.callback    = callback;
+            this.soundData = soundData;
+            this.callback = callback;
         }
 
         override protected function run() : void
         {
-            var t : Thread = new SoundExtractWorkerThread(soundBinary, sound_url);
+            var t : Thread = new SoundExtractWorkerThread(soundData);
             t.start();
             t.join(30000);
 
@@ -28,7 +24,7 @@
 
         private function normalize() : void
         {
-            var t : Thread = new NormalizeSoundWorkerThread(soundBinary);
+            var t : Thread = new NormalizeSoundWorkerThread(soundData.binary);
             t.start();
             t.join();
         }
@@ -36,7 +32,7 @@
         override protected function finalize() : void
         {
             if (callback != null)
-                callback(new SoundNormalizerEvent(SoundNormalizerEvent.COMPLETE, soundBinary));
+                callback(new SoundNormalizerEvent(SoundNormalizerEvent.COMPLETE, soundData));
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿package com.imajuk.sounds
 {
-    import flash.events.IOErrorEvent;
     import com.imajuk.logs.Logger;
 
     import flash.display.Sprite;
     import flash.events.Event;
+    import flash.events.IOErrorEvent;
     import flash.media.Sound;
     import flash.net.URLRequest;
     import flash.system.Worker;
@@ -64,6 +64,8 @@
 
         private function extractSound(...param) : void
         {
+            Worker.current.setSharedProperty("duration", sound.length);
+            
             sound.extract(shared, sound.length * 44100);
             
             reset();

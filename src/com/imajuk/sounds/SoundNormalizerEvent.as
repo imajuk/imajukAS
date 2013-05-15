@@ -1,6 +1,5 @@
 ﻿package com.imajuk.sounds
 {
-    import flash.utils.ByteArray;
     import flash.events.Event;
 
     /**
@@ -10,17 +9,17 @@
     {
         public static const COMPLETE : String = "COMPLETE";
 
-        private var _soundBinary : ByteArray;
-        public function get soundBinary() : ByteArray
-        {
-            return _soundBinary;
-        }
 
-        public function SoundNormalizerEvent(type : String, soundBinary : ByteArray)
+        private var _soundData : SoundData;
+        public function get soundData() : SoundData
+        {
+            return _soundData;
+        }
+        
+        public function SoundNormalizerEvent(type : String, soundData : SoundData)
         {
             super(type);
-            _soundBinary = soundBinary;
+            _soundData = soundData;
         }
-
     }
 }

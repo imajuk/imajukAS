@@ -28,9 +28,24 @@
             SoundNormalizer.loadAndNormalize("http://imajuk.com/music.mp3");
             SoundNormalizer.addEventListener(SoundNormalizerEvent.COMPLETE, function(e : SoundNormalizerEvent) : void
             {
+                //------------------------------------------------
                 // the sound loaded and normalized.
                 // you can play the binary with SoundBinaryPlayer.
-                new SoundBinaryPlayer().play(e.soundBinary); 
+                //------------------------------------------------
+                const player:SoundBinaryPlayer = new SoundBinaryPlayer();
+                player.play(e.soundData); 
+                
+                
+                //------------------------------------------------
+                // you can get the information of playing progress
+                //------------------------------------------------
+                trace('player.currentTime: ' + (player.currentTime));
+                trace('player.totalTime: '   + (player.totalTime));
+                
+                //------------------------------------------------
+                // also you can stop the sound like this.
+                //------------------------------------------------
+//                player.dispose();
             });
         }
     }

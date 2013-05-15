@@ -8,26 +8,22 @@
     import flash.system.Worker;
     import flash.system.WorkerDomain;
     import flash.system.WorkerState;
-    import flash.utils.ByteArray;
 
     /**
      * @author shinyamaharu
      */
-    public class SoundExtractWorkerThread extends Thread
+    internal class SoundExtractWorkerThread extends Thread
     {
         [Embed(source="soundExtractWorker.swf", mimeType="application/octet-stream")] 
         private static var SoundExtractWorker : Class;
         private static var worker : Worker;
         
-        private var song_url : String;
-        private var soundBinary : ByteArray;
+        private var soundData : SoundData;
 
-        public function SoundExtractWorkerThread(soundBinary : ByteArray, song_url : String)
+        public function SoundExtractWorkerThread(soundData : SoundData)
         {
             super();
-
-            this.soundBinary = soundBinary;
-            this.song_url = song_url;
+            this.soundData = soundData;
         }
 
         override protected function run() : void
@@ -46,11 +42,11 @@
         { 
             if (worker.state == WorkerState.RUNNING) 
             { 
-                worker.setSharedProperty("soundBinary", soundBinary);
-                worker.setSharedProperty("soundURL", song_url);
-                worker.setSharedProperty("complete", false);
-                worker.setSharedProperty("error", false);
-                worker.setSharedProperty("log", Logger.currentFilter);
+                worker.setSharedProperty("soundBinary", soundData.binary);
+                worker.setSharedProperty("soundURL",    soundData.url);
+                worker.setSharedProperty("complete",    false);
+                worker.setSharedProperty("error",       false);
+                worker.setSharedProperty("log",         Logger.currentFilter);
             } 
 
             next(waitWokersTask);
@@ -70,6 +66,7 @@
 
         override protected function finalize() : void
         {
+            soundData._soundDuration = uint(worker.getSharedProperty("duration"));
         }
     }
 }

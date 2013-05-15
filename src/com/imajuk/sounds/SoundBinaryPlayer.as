@@ -15,16 +15,17 @@
         private var sound : Sound;
         private var soundBinary : ByteArray;
         private var channel : SoundChannel;
+        private var _totalTime : uint;
 
         public function SoundBinaryPlayer()
         {
         }
 
-        public function play(soundBinary : ByteArray) : void
+        public function play(soundData : SoundData) : void
         {
-            Logger.info(0, "playing...", soundBinary.length);
+            Logger.info(0, "playing...");
             
-            this.soundBinary = soundBinary;
+            this.soundBinary = soundData.binary;
             soundBinary.position = 0;
 
             sound = new Sound();
@@ -32,6 +33,8 @@
             
             channel  = sound.play();
             channel.addEventListener(Event.SOUND_COMPLETE, dispose);
+            
+            _totalTime = soundData.soundDuration;
         }
 
         public function dispose(...param) : void
@@ -71,6 +74,19 @@
                     dispose();
                 }
             }
+        }
+
+        public function get currentTime() : uint
+        {
+            if (channel)
+                return channel.position;
+            else
+                return 0;
+        }
+
+        public function get totalTime() : uint
+        {
+            return _totalTime;
         }
     }
 }
