@@ -16,6 +16,7 @@
     /**
      * @author shinyamaharu
      */
+    [SWF(backgroundColor="#FFFFFF", frameRate="60", width="640", height="480")]
     public class RopeMixSample extends DocumentClass
     {
         public function RopeMixSample()

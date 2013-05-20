@@ -32,10 +32,10 @@
 
         public function exec(cp : ControlPoint, model:IRopeShape) : void
         {
-            //コントロールポイントを初期位置に戻す
-            cp.reset();
-            
             if (length == 0) return;
+            
+            //TODO これを消したいが消すとRopeShape::representH()がうまくいかない
+            cp.reset();
 
             var i       : int,
                 applied : Point;

@@ -15,19 +15,19 @@
      */
     public class RopeThread extends Thread
     {
-        private var models : Vector.<IRopeShape>;
+        private var shapes : Vector.<IRopeShape>;
         private var drawLayer : Shape;
         private var effect : Effect;
         private var renderer : Vector.<RopeRenderer>;
 
-        public function RopeThread(models : Vector.<IRopeShape>, drawLayer : Shape, renderer:Vector.<RopeRenderer> = null, effect : Effect = null)
+        public function RopeThread(shapes : Vector.<IRopeShape>, drawLayer : Shape, renderer:Vector.<RopeRenderer> = null, effect : Effect = null)
         {
             super();
 
-            this.renderer = renderer;
-            this.models = models;
+            this.renderer  = renderer;
+            this.shapes    = shapes;
             this.drawLayer = drawLayer;
-            this.effect = effect;
+            this.effect    = effect;
         }
 
         override protected function run() : void
@@ -41,11 +41,12 @@
                  cp : ControlPoint,
                 cps : Array;
                 
-            drawLayer.graphics.clear();
+            if (hasRenderer)
+                drawLayer.graphics.clear();
                 
-            for each(var model : IRopeShape in models) 
+            for each(var shape : IRopeShape in shapes) 
             {
-                cps = model.getControlPoints();
+                cps = shape.getControlPoints();
                 cp = cps[0];
                 
                 //=================================
@@ -58,9 +59,13 @@
                 while (cp)
                 {
                     //------------------------
+                    // refresh control point
+                    //------------------------
+                    cp.update(shape.getPointOnControlPointsLocus(cp.pointQuery));
+                    //------------------------
                     // apply effects to control points
                     //------------------------
-                    if (hasEffect) effect.exec(cp, model);
+                    if (hasEffect) effect.exec(cp, shape);
                     //------------------------
                     // calc anchor points position
                     //------------------------
@@ -76,7 +81,7 @@
                 // rendering
                 //=================================
                 if (hasRenderer)
-                    RopeRenderer(renderer[i++]).render(model, drawLayer);
+                    RopeRenderer(renderer[i++]).render(shape, drawLayer);
                 
             }
             

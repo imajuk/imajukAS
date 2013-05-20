@@ -1,7 +1,14 @@
 ﻿package com.imajuk.ropes.shapes
 {
     import com.imajuk.interfaces.IMotionGuide;
-    import com.imajuk.ropes.models.PointQuery;
+    import com.imajuk.ropes.models.ControlPoint;
+    import com.imajuk.ropes.models.PointAnimateInfo;
+    import com.imajuk.utils.MathUtil;
+
+    import org.libspark.betweenas3.BetweenAS3;
+    import org.libspark.betweenas3.easing.Back;
+    import org.libspark.betweenas3.tweens.ITween;
+
     import flash.geom.Point;
 
 
@@ -13,6 +20,7 @@
         public var currentShape : IRopeShape;
         public var previousShape : IRopeShape;
         private var shapes : RopeShapes;
+        private var _isInitialized : Boolean;
 
         public function initialize(shapes : RopeShapes) : void
         {
@@ -21,34 +29,63 @@
             var b : IRopeShape = shapes.getShape(1);
             currentShape = a;
             previousShape = b || a;
+            
+            _isInitialized = true;
         }
 
-        public function change(type : int) : void
+        public function change(type : int, duration : Number = 0, callback : Function = null) : void
         {
-            var shape : IRopeShape = shapes.getShape(type);
-            if (currentShape == shape)
+            const targetShape:IRopeShape = shapes.getShape(type);
+            if (currentShape === targetShape)
                 return;
 
             previousShape = currentShape;
-            currentShape = shape;
+            currentShape = targetShape;
+
+            const tweens : Array = [];
+            
+            var  cp : ControlPoint = currentShape.getControlPoints()[0],
+                twn : ITween;
+            while (cp)
+            {
+                tweens.push(
+                    BetweenAS3.delay(
+                        BetweenAS3.tween(
+                            cp.pointQuery, {mix:1}, {mix:0}, duration + MathUtil.random(.8, .9), Back.easeOut
+                        ), 
+                    cp.id * .0005)
+                );
+                cp = cp.next;
+            }
+            
+            twn = BetweenAS3.parallelTweens(tweens);
+            if (callback != null) twn.onComplete = callback;
+            twn.play();
         }
 
         /**
          * ２つのモーションガイドをミックスしたt時間目の位置を返す.
          */
-        public function getPoint(q : PointQuery) : Point
+        public function getPoint(q : PointAnimateInfo) : Point
         {
-            var mix : Number = q.mix;
-            var prev : Point = previousShape.getPoint(q);
-            var curr : Point = currentShape.getPoint(q);
-            var px : Number = prev.x * (1 - mix) + curr.x * mix;
-            var py : Number = prev.y * (1 - mix) + curr.y * mix;
+            const  mix : Number = q.mix,
+                  prev : Point = previousShape.getPoint(q),
+                  curr : Point = currentShape.getPoint(q),
+                    px : Number = prev.x * (1 - mix) + curr.x * mix,
+                    py : Number = prev.y * (1 - mix) + curr.y * mix;
+                    
             return new Point(px, py);
         }
-
-        public function get shape() : IRopeShape
+        
+        public function getPointOnControlPointsLocus(q : PointAnimateInfo) : Point
         {
-            return currentShape;
+            const  mix : Number = q.mix,
+                  prev : Point = previousShape.getPointOnControlPointsLocus(q),
+                  curr : Point = currentShape.getPointOnControlPointsLocus(q),
+                    px : Number = prev.x * (1 - mix) + curr.x * mix,
+                    py : Number = prev.y * (1 - mix) + curr.y * mix;
+                    
+            return new Point(px, py);
         }
 
         public function getControlPoints() : Array
@@ -73,16 +110,27 @@
 
         public function get closed() : Boolean
         {
-            return false;
+            return currentShape.closed;
         }
 
         public function set closed(value : Boolean) : void
         {
+            currentShape.closed = value;
         }
 
         public function get isInitialized() : Boolean
         {
-            return false;
+            return _isInitialized;
+        }
+
+        public function get amount() : int
+        {
+            return currentShape.amount;
+        }
+
+        public function set amount(value : int) : void
+        {
+            currentShape.amount = value;
         }
     }
 }

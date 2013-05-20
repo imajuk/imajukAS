@@ -9,7 +9,7 @@
     {
         public var next : ControlPoint;
         public var ap : APoint = new APoint(new Point(), new Point());
-        public var pointQuery : PointQuery = new PointQuery();
+        public var pointQuery : PointAnimateInfo = new PointAnimateInfo();
 
         private var _id : int;
         public function get id() : int
@@ -34,6 +34,7 @@
             super(x, y);
 
             _id = id;
+            pointQuery.time = rate;
             pointQuery.rate = rate;
 
             _initX = x;
@@ -54,6 +55,17 @@
         {
             x = _initX;
             y = _initY;
+        }
+
+        public function update(p : Point) : void
+        {
+            x = p.x;
+            y = p.y;
+        }
+        
+        public function resetXTo(newX:int) : void
+        {
+            _initX = x = newX;
         }
 
 

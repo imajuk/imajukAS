@@ -1,7 +1,7 @@
 ﻿package com.imajuk.ropes.effects
 {
     import com.imajuk.ropes.models.ControlPoint;
-    import com.imajuk.ropes.models.PointQuery;
+    import com.imajuk.ropes.models.PointAnimateInfo;
     import com.imajuk.ropes.shapes.IRopeShape;
 
     import flash.geom.Point;
@@ -12,10 +12,12 @@
      */
     public class Circuit implements IEffect
     {
-        public const PRIORITY:int = 1;
-        public var speed : Number;
-        private var t : Number = 0;
+        public const PRIORITY : int = 1;
+
+        public var speed : Number = 0;
+
         private var shape : IRopeShape;
+        private var t : Number = 0;
 
         public function Circuit(shape : IRopeShape, speed : Number = 0)
         {
@@ -27,9 +29,9 @@
         {
             if (this.shape !== shape) return cp;
             
-            var q : PointQuery = cp.pointQuery;
+            const q : PointAnimateInfo = cp.pointQuery;
             q.time = q.rate + t;
-
+            
             return shape.getPointOnControlPointsLocus(q);
         }
 
