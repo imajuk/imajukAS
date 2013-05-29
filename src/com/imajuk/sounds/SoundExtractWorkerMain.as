@@ -50,6 +50,7 @@
 
         private function loadSound() : void
         {
+            Logger.info(1, "loading... " + soundURL + "");
             sound = new Sound();
             sound.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
             sound.addEventListener(Event.COMPLETE, extractSound);
@@ -58,7 +59,7 @@
 
         private function onIOError(event : IOErrorEvent) : void
         {
-            Logger.warning(event.text);
+            Worker.current.setSharedProperty("error_mes", event.text);
             Worker.current.setSharedProperty("error", true);
         }
 

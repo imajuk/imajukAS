@@ -56,7 +56,7 @@
         {
             if (worker.getSharedProperty("error"))
             {
-                throw new Error();
+                throw new Error(worker.getSharedProperty("error_mes"));
                 return;
             }
             
