@@ -9,7 +9,7 @@
         public static const INFO_MARK0 : String = "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯";        public static const INFO_MARK1 : String = "> ";        public static const INFO_MARK2 : String = "# ";
         public static const DEBUG_MARK : String = ">> ";
         public static const INTERNAL_MARK : String = "<< ";
-        private static const WARNING_MARK : String = "\n((( !WARNIG! ";        private static const RELEASE_MARK : String = "//--------------------------------------------------------------------------";
+        private static const WARNING_MARK : String = "((( !WARNIG! ";        private static const RELEASE_MARK : String = "//--------------------------------------------------------------------------";
         private static const ERROR_MARK : String = "////////////////////////////////////////////////////";
         public static const INFO : uint         = parseInt("10000000", 2);
         public static const DEBUG : uint        = parseInt("01000000", 2);
@@ -78,7 +78,7 @@
         public static function warning(...param) : void 
         {
             if ((currentFilter & WARNING) >> 5 == 1)
-               destination.log(WARNING_MARK + param + ")))\n");
+               destination.log(WARNING_MARK + param + ")))");
         }
         
         public static function release(...param) : void 
