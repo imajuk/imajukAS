@@ -184,7 +184,7 @@
                 if (!containsInDisplayList(displayObject))
                 {
                     throw new Error("指定されたDisplayObject[" + displayObject + "]は表示リストに追加されていません。");
-                    return;
+                    return 0;
                 }
             else
             {

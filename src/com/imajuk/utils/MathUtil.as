@@ -1,5 +1,4 @@
-﻿﻿
-package com.imajuk.utils
+﻿package com.imajuk.utils
 {
     import flash.geom.Point;
     /**
