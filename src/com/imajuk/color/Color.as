@@ -1,5 +1,4 @@
-﻿﻿
-package com.imajuk.color
+﻿package com.imajuk.color
 {
     /**
      * Colorは色を表現するためのクラスです.

@@ -124,14 +124,23 @@
             return target;
         }
 
+        public function forEach(f:Function=null) : void
+        {
+            if (f === null) return;
+            var node:LinkListNode = _first;
+            while(node)
+            {
+                f(node.data);
+                node = node.next;
+            }
+        }
+
         public function dump() : void
         {
-        	var node:LinkListNode = _first;
-        	while(node)
-        	{
-        		trace(node.data);
-        		node = node.next;
-        	}
+            forEach(function(data : *) : void
+            {
+                trace(data);
+            });
         }
 
         public function clone() : LinkList

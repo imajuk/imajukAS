@@ -1,7 +1,6 @@
 ﻿package com.imajuk.utils
 {
     import flash.utils.*;
-	﻿
 
     /**
      * <code>Object</code>に関するユーティリティ

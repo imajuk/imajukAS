@@ -1,4 +1,4 @@
-﻿﻿package com.imajuk.color
+﻿package com.imajuk.color
 {
     /**
      * カラーに関するユーティリティ

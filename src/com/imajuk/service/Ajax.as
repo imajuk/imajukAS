@@ -3,7 +3,6 @@
     import co.uk.mikestead.net.URLFileVariable;
     import co.uk.mikestead.net.URLRequestBuilder;
 
-    import com.adobe.serialization.json.JSON;
     import com.imajuk.logs.Logger;
     import com.imajuk.utils.ObjectUtil;
 
@@ -132,7 +131,7 @@
                 switch(dataType)
                 {
                     case TYPE_JSON:
-                        response = JSON.decode(loader.data);
+                        response = JSON.parse(loader.data);
                         break;
                     case TYPE_XML:
                         response = XML(loader.data);
