@@ -24,6 +24,8 @@
      */
     public class CommandComponent extends AbstractComponent implements IAsynchronousCommand, IComponent, ILoopable
     {                
+        public function CommandComponent() {
+        }
         //--------------------------------------------------------------------------
         //
         //  properties

@@ -16,5 +16,8 @@
         public var overEasing : IEasing       = Expo.easeOut;        public var outEasing : IEasing        = Expo.easeOut;
         public var downEasing : IEasing       = Expo.easeOut;
         public var upEasing : IEasing         = Expo.easeOut;        public var enabledEasing : IEasing    = Expo.easeOut;        public var disabledEasing : IEasing   = Expo.easeOut;        public var selectedEasing : IEasing   = Expo.easeInOut;        public var unSelectedEasing : IEasing = Cubic.easeIn;
+        
+        public function BehaviorDetail() {
+        }
     }
 }

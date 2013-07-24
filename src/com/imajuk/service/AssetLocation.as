@@ -16,6 +16,9 @@
         private var _contexts:Dictionary = new Dictionary(true);
         private var _bins:Dictionary = new Dictionary(true);
         private var _location:Array = [];
+        
+        public function AssetLocation() {
+        }
 
         public function add(key:URLRequest, register:Function, context:LoaderContext = null, asBinary:Boolean = false):IAssetLocation
         {

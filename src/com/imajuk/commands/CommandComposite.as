@@ -22,6 +22,9 @@
      */
     public class CommandComposite extends CommandComponent implements IAsynchronousCommand, IComponent
     {
+        public function CommandComposite() {
+        }
+        
         //--------------------------------------------------------------------------
         //
         //  Variables
@@ -215,7 +218,7 @@
             var result:Boolean = true;
             while (i.hasNext())
             {
-                result = CommandComponent(i.next())[methodName]() && result;
+                result = Boolean(CommandComponent(i.next())[methodName]() && result);
             }
             return result;
         }

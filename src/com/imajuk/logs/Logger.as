@@ -21,7 +21,8 @@
         public static var currentFilter : uint = parseInt("00111000", 2);
         
         public static const BASIC       : IOutput = new BasicTrace();
-        public static const EXTERNAL    : IOutput = new ExternalTrace();
+        public static const LC_MESSAGE  : IOutput = new ExternalTrace();
+        public static const TF_ON_STAGE : IOutput = new STTxField();
         public static var destination : IOutput = BASIC;
 
         public static function info(level:int, ...param) : void 

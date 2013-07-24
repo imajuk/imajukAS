@@ -8,6 +8,9 @@
         private var tButtonMode : Boolean;
         private var tMouseEnabled : Boolean;
         private var tMouseChildren : Boolean;
+        
+        public function ButtonUtils() {
+        }
 
         public function recordInteractiveStatus(button : AbstractButton) : void
         {

@@ -117,6 +117,9 @@
         {
             _v = value;
         }
+        
+        public function Color() {
+        }
 
         /**
          * 渡された色相、彩度、明度からColorCoreインスタンスを生成して返します。

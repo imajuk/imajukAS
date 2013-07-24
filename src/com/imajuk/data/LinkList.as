@@ -24,6 +24,9 @@
         {
             return _length;
         }
+        
+        public function LinkList() {
+        }
 
         public function push(data : *) : LinkListNode
         {
