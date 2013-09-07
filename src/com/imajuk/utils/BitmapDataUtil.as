@@ -91,11 +91,7 @@
         {
         	try
         	{
-                var r : Rectangle = bitmapData.getColorBoundsRect(0xFF000000, 0x00000000, false);
-                //getColorBoundsRectにはbugがあるっぽい.
-                //1pxだけ色のついたbitmapに適用するとr: (x=0, y=0, w=0, h=0)が返る.
-                if (r.x == 0 && r.y == 0 && r.width==0 && r.height == 0 && bitmapData.getPixel32(0, 0) != 0)
-                    r = new Rectangle(0, 0, 1, 1);
+                var r : Rectangle = getColorBoundsRect(bitmapData, 0xFF000000, 0x00000000, false);
                 var b : BitmapData = new BitmapData(r.width, r.height, true, 0);
                 b.copyPixels(bitmapData, r, new Point());
         	}
@@ -104,6 +100,17 @@
                 return bitmapData;
         	}
             return b;
+        }
+
+        //getColorBoundsRectにはbugがあるっぽい.
+        //1pxだけ色のついたbitmapに適用するとr: (x=0, y=0, w=0, h=0)が返る.
+        //なので変わりにこのメソッドを使う
+        public static function getColorBoundsRect(bitmapData:BitmapData, mask : uint, color : uint, findColor : Boolean = true) : Rectangle
+        {
+            var r : Rectangle = bitmapData.getColorBoundsRect(mask, color, findColor);
+            if (r.x == 0 && r.y == 0 && r.width==0 && r.height == 0 && bitmapData.getPixel32(0, 0) != 0)
+                r = new Rectangle(0, 0, 1, 1);
+            return r;
         }
 
         private static function trimTransparent2(bitmapData : BitmapData) : Object
@@ -276,67 +283,8 @@
          */
         public static function hitTest(b1 : BitmapData, b1Loc : Point, b2 : BitmapData, b2Loc : Point) : String
         {
-            const rect1 : Rectangle = b1.rect, rect2 : Rectangle = b2.rect;
-            rect1.x = b1Loc.x;
-            rect1.y = b1Loc.y;
-            rect2.x = b2Loc.x;
-            rect2.y = b2Loc.y;
-
-            //両bitmapが完全に重なっている
-            if (rect1.equals(rect2)) return 'W';
-            
-            const diff : Rectangle = rect1.intersection(rect2),
-                     w : int       = diff.width, 
-                     h : int       = diff.height;
-                     
-            //両bitmapがヒットしていない
-            if (w == 0 && h == 0) return 'NO_HIT';
-
-            const isContaine : Boolean = rect2.containsRect(rect1);
-            var result : String = '';
-            if (isContaine)
-            {
-                const alignTopEdge      : Boolean = diff.y == rect2.y;
-                const alignAtBottomEdge : Boolean = diff.y + (diff.height - 1) == rect2.y + (rect2.height - 1);
-                const alignLeftEdge     : Boolean = diff.x == rect2.x;
-                const alignRightEdge    : Boolean = diff.x + (diff.width - 1) == rect2.x + (rect2.width - 1);
-                if (w == h)
-                {
-                    if (alignTopEdge)      result += 'T';
-                    if (alignAtBottomEdge) result += 'B';
-                    if (alignLeftEdge)     result += 'L';
-                    if (alignRightEdge)    result += 'R';
-                }
-                else if (w > h)
-                {
-                    if (alignTopEdge)           result += 'T';
-                    else if (alignAtBottomEdge) result += 'B';
-                    else if (alignLeftEdge)     result += 'L';
-                    else if (alignRightEdge)    result += 'R';
-                }
-                else
-                {
-                    if (alignLeftEdge)          result += 'L';
-                    else if (alignRightEdge)    result += 'R';
-                    else if (alignTopEdge)      result += 'T';
-                    else if (alignAtBottomEdge) result += 'B';
-                }
-            }
-            else
-            {
-                if (w >= h)
-                {
-                    if (diff.y <= b2Loc.y) result += 'T';
-                    else result += 'B';
-                }
-                if (w <= h)
-                {
-                    if (diff.x <= b2Loc.x) result += 'L';
-                    else result += 'R';
-                }
-            }
-            
-            return result;
+            const intersection : IntersectionInfo = new IntersectionInfo(b1, b1Loc, b2, b2Loc);
+            return intersection.result; 
         }
 
         /**
@@ -364,59 +312,38 @@
         {
             if (!b1.transparent) throw new Error('b1 is not transparent bitmap');
             
-            var rect1 : Rectangle = b1.rect, rect2 : Rectangle = b2.rect;
-            rect1.x = b1Loc.x;
-            rect1.y = b1Loc.y;
-            rect2.x = b2Loc.x;
-            rect2.y = b2Loc.y;
+            const intersection : IntersectionInfo = new IntersectionInfo(b1, b1Loc, b2, b2Loc);
             
-            const diff : Rectangle = rect1.intersection(rect2),
-                     w : int = diff.width, 
-                     h : int = diff.height;
-            
-            
-            if (w == 0 && h == 0) return 'NO_HIT';
-            var isTrans:Boolean = true;
-            for (var py : int = diff.y; py < diff.y + h; py++)
-                for (var px : int = diff.x; px < diff.x + w; px++)
-                    isTrans = isTrans && b1.getPixel32(px, py) == 0;
-            if (isTrans) return 'NO_HIT';
-            
-            var temp : BitmapData = new BitmapData(diff.width, diff.height, true, 0);
-            temp.copyPixels(b1, new Rectangle(diff.x, diff.y, w, h), new Point());
-            var o:Object = trimTransparent2(temp);
-            temp = o.bitmap;
-            var r : Rectangle = o.rect;
+            //両bitmapが完全に重なっている、または両bitmapがヒットしていない
+            if (!intersection.isIntersect) 
+                return intersection.result; 
+
+            //ヒットしてる場合は交差しているビットマップに不透明ピクセルが含まれているかどうか調べる
+            var colorRect : Rectangle = 
+                getColorBoundsRect(intersection.intersectionBitmap, 0xFF000000, 0x00000000, false);
+            //含まれていなければヒットしていない
+            if (colorRect.width == 0 && colorRect.height==0)
+                return 'NO_HIT';
+
+            //透明部分をトリムしhitTestの結果を返す
+            const    o : Object = trimTransparent2(intersection.intersectionBitmap),
+                  diff : Rectangle = intersection.rect,
+                    r : Rectangle = o.rect;
             b1Loc.x = diff.x + r.x;
             b1Loc.y = diff.y + r.y;
             
-            return hitTest(temp, b1Loc, b2, b2Loc);
-            
-//            var result : String = '';
-//            if (w >= h)
-//            {
-//                if (b1Loc.y < b2Loc.y) result += 'T';
-//                else result += 'B';
-//            }
-//            if (w <= h)
-//            {
-//                if (b1Loc.x > b2Loc.x) result += 'R';
-//                else result += 'L';
-//            }
-//            return result;
+            return hitTest(o.bitmap, b1Loc, b2, b2Loc);
         }
-
-        
-
-
     }
 }
 import com.imajuk.geom.Segment;
-import com.imajuk.utils .BitmapDataUtil;
+import com.imajuk.utils.BitmapDataUtil;
+
 import flash.display.BitmapData;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.geom.Point;
+import flash.geom.Rectangle;
 import flash.utils.clearInterval;
 import flash.utils.setInterval;
 
@@ -471,4 +398,142 @@ class Painter extends EventDispatcher
         
         return false;
     }    
+}
+
+class IntersectionInfo
+{
+    private var _intersectionBitmap : BitmapData;
+    public function get intersectionBitmap() : BitmapData
+    {
+        return _intersectionBitmap;
+    }
+    
+    private var _alignByTopEdge : Boolean;
+    public function get alignByTopEdge() : Boolean
+    {
+        return _alignByTopEdge;
+    }
+
+    private var _alignByBottomEdge : Boolean;
+    public function get alignByBottomEdge() : Boolean
+    {
+        return _alignByBottomEdge;
+    }
+
+    private var _alignByLeftEdge : Boolean;
+    public function get alignByLeftEdge() : Boolean
+    {
+        return _alignByLeftEdge;
+    }
+
+    private var _alignByRightEdge : Boolean;
+    public function get alignByRightEdge() : Boolean
+    {
+        return _alignByRightEdge;
+    }
+    
+    private var _isContain : Boolean;
+    public function get isContain() : Boolean
+    {
+        return _isContain;
+    }
+    
+    private var _diff : Rectangle;
+    public function get rect() : Rectangle
+    {
+        return _diff;
+    }
+    
+    private var _result : String = '';
+    public function get result() : String
+    {
+        return _result;
+    }
+
+    public function get isIntersect() : Boolean
+    {
+        return _result != 'NO_HIT' && _result != 'W';
+    }
+    
+    public function IntersectionInfo(b1 : BitmapData, b1Loc : Point, b2 : BitmapData, b2Loc : Point)
+    {
+        const rect1 : Rectangle = b1.rect, rect2 : Rectangle = b2.rect;
+        rect1.x = b1Loc.x;
+        rect1.y = b1Loc.y;
+        rect2.x = b2Loc.x;
+        rect2.y = b2Loc.y;
+        _isContain = rect2.containsRect(rect1);
+        
+        //両bitmapが完全に重なっている
+        if (rect1.equals(rect2))
+        {
+            _result = 'W';
+        }
+        else
+        {
+            const diff : Rectangle = rect1.intersection(rect2),
+                     w : int = diff.width,
+                     h : int = diff.height;
+                     
+            //両bitmapがヒットしていない
+            if (w == 0 && h == 0)
+            {
+                _result = 'NO_HIT';
+            }
+            else
+            {
+                _diff = diff;
+                if (_isContain)
+                {
+                    _alignByTopEdge    = diff.y == rect2.y;
+                    _alignByBottomEdge = diff.y + (diff.height - 1) == rect2.y + (rect2.height - 1);
+                    _alignByLeftEdge   = diff.x == rect2.x;
+                    _alignByRightEdge  = diff.x + (diff.width - 1) == rect2.x + (rect2.width - 1);
+
+                    if (w == h)
+                    {
+                        if (_alignByTopEdge)      _result += 'T';
+                        if (_alignByBottomEdge)   _result += 'B';
+                        if (_alignByLeftEdge)     _result += 'L';
+                        if (_alignByRightEdge)    _result += 'R';
+                    }
+                    else if (w > h)
+                    {
+                        if (_alignByTopEdge)           _result += 'T';
+                        else if (_alignByBottomEdge)   _result += 'B';
+                        else if (_alignByLeftEdge)     _result += 'L';
+                        else if (_alignByRightEdge)    _result += 'R';
+                    }
+                    else
+                    {
+                        if (_alignByLeftEdge)          _result += 'L';
+                        else if (_alignByRightEdge)    _result += 'R';
+                        else if (_alignByTopEdge)      _result += 'T';
+                        else if (_alignByBottomEdge)   _result += 'B';
+                    }
+                    
+                    _intersectionBitmap = b1.clone();
+                }
+                else
+                {
+                    if (w >= h)
+                    {
+                        if (diff.y <= b2Loc.y) _result += 'T';
+                        else _result += 'B';
+                    }
+                    if (w <= h)
+                    {
+                        if (diff.x <= b2Loc.x) _result += 'L';
+                        else _result += 'R';
+                    }
+                    
+                    _intersectionBitmap = new BitmapData(diff.width, diff.height, true, 0);
+                    _intersectionBitmap.copyPixels(b1, diff, new Point());
+                }
+            }
+        }
+    }
+
+
+
 }
