@@ -183,5 +183,10 @@
         {
             return vx1 * vy2 - vx2 * vy1;
         }
+
+        public static function getRandomRadian() : Number
+        {
+            return Math.random() * Math.PI * 2 - Math.PI;
+        }
     }
 }
