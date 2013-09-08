@@ -58,7 +58,7 @@
     
         public function get isIntersect() : Boolean
         {
-            return _result != 'NO_HIT' && _result != 'W';
+            return _result != 'NO_HIT';
         }
         
         public function IntersectionInfo(b1 : BitmapData, b1Loc : Point, b2 : BitmapData, b2Loc : Point)
@@ -70,16 +70,27 @@
             rect2.y = b2Loc.y;
             _isContain = rect2.containsRect(rect1);
             
+            const diff : Rectangle = rect1.intersection(rect2),
+                     w : int = diff.width,
+                     h : int = diff.height;
+                     
             //両bitmapが完全に重なっている
             if (rect1.equals(rect2))
             {
-                _result = 'W';
+                _intersectionBitmap = b1.clone();
+                if (isIncludeOpaquePixel())
+                {
+                    _result = 'W';
+                    _diff = diff;
+                }
+                else
+                {
+                    _result = 'NO_HIT';
+                    _intersectionBitmap = null;
+                }
             }
             else
             {
-                const diff : Rectangle = rect1.intersection(rect2),
-                         w : int = diff.width,
-                         h : int = diff.height;
                          
                 //両bitmapがヒットしていない
                 if (w == 0 && h == 0)
@@ -124,6 +135,7 @@
                         else
                         {
                             _result = 'NO_HIT';
+                            _intersectionBitmap = null;
                         }
                         
                     }
@@ -148,18 +160,23 @@
                         else
                         {
                             _result = 'NO_HIT';
+                            _intersectionBitmap = null;
                         }
                     }
                 }
             }
         }
+        
+        public function toString() : String
+        {
+            return _result;
+        }
 
+        //ビットマップに不透明ピクセルが含まれているかどうか調べる
         private function isIncludeOpaquePixel() : Boolean
         {
-            //ヒットしてる場合は交差しているビットマップに不透明ピクセルが含まれているかどうか調べる
             var colorRect : Rectangle = 
                 BitmapDataUtil.getColorBoundsRect(_intersectionBitmap, 0xFF000000, 0x00000000, false);
-            //含まれていなければヒットしていない
             if (colorRect.width == 0 && colorRect.height==0)
                 return false;
             
