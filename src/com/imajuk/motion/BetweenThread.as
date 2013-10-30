@@ -1,5 +1,6 @@
 ﻿package com.imajuk.motion
 {
+    import com.imajuk.constructions.GlobalPause;
     import com.imajuk.logs.Logger;
 
     import org.libspark.betweenas3.BetweenAS3;
@@ -47,6 +48,7 @@
                 tween.addEventListener(TweenEvent.STOP, _onStop);
 
             tween.addEventListener(TweenEvent.COMPLETE, completeHandler);
+            
         }
 
         private function completeHandler(event : TweenEvent) : void
@@ -70,6 +72,8 @@
         	try
         	{
         	   tween.play();
+               
+               GlobalPause.registerTween(tween);
         	}
         	catch(e:Error)
         	{
