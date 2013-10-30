@@ -300,5 +300,25 @@
         {
             return new Point(begin.x + (end.x - begin.x) * time, begin.y + (end.y - begin.y) * time);
         }
+
+        /**
+         * 垂直二等分線を返す
+         */
+        public function calcMidperpendicular() : Segment
+        {
+            // 辺ABの中点
+            const center : Point = getValue(.5),
+                     seg : Segment = clone();
+            seg.rotate(Math.PI / 2);
+            var dx : Number = center.x - seg.begin.x;
+            var dy : Number = center.y - seg.begin.y;
+            seg.translate(dx, dy);
+            return seg;
+        }
+
+        public function get isHolizonal() : Boolean
+        {
+            return _vector.vy == 0;
+        }
     }
 }

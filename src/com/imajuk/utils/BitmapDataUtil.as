@@ -59,8 +59,11 @@
          * @param pattern	型となるビットマップ
          * @param point		型抜きを始める位置（ターゲットビットマップ上の座標）
          */
-        public static function knockout(target : BitmapData, pattern : BitmapData, destPoint : Point) : void
+        public static function knockout(target : BitmapData, pattern : BitmapData, destPoint : Point, invert:Boolean = false) : void
         {
+            if (!target.transparent) throw new Error("the target isn't transparent bitmapdata.");
+            if (!pattern.transparent) throw new Error("the pattern isn't transparent bitmapdata.");
+            
             var pw : Number = pattern.width;
             var ph : Number = pattern.height;
             var x : int ;
@@ -77,8 +80,10 @@
                 while(col < pw)
                 {                    x = col + destPoint.x;
                     val = aChannel.getPixel32(col, row);
-                    //強さを反転
-                    val = ~val;                    val = uint(val & target.getPixel32(x, y));
+                    if (invert)
+                        val = ~val; //反転
+                    else
+                        val |= 0x00FFFFFF;                    val = uint(val & target.getPixel32(x, y));
                     target.setPixel32(x, y, val);
                     col++;
                 }
@@ -136,8 +141,9 @@
          * ビットマップデータに与えられた線分を描画する
          * ただし水平か垂直の線分のみ.水平垂直でない場合はエラー
          */
-        public static function drawLinefromSegment(bitmapview : BitmapData, seg : Segment, color : uint) : void
+        public static function drawLinefromSegment(bitmapview : BitmapData, seg : Segment, color : uint, thickness:int=1, tex:BitmapData=null) : void
         {
+            if (tex && bitmapview.transparent != tex.transparent) throw new Error('the canvas.transparent must be same as tex.transparent.');
             if (seg.begin.equals(seg.end)) throw new Error('segment has same points as "begin" and "end".');
             var isHolizonal:Boolean = seg.begin.y == seg.end.y;
             var isVertical:Boolean = seg.begin.x == seg.end.x; 
@@ -150,6 +156,14 @@
                     + (isVertical));
             
             var current:int, dest:int, direction:int;
+            var px : int, px2:int, py : int;
+
+            if (thickness > 1)
+            {
+                if (seg.vector.vy < 0) seg.begin.y += thickness;
+                if (seg.vector.vx < 0) seg.begin.x += thickness;
+            }
+
             if (isHolizonal)
             {
                 current   = seg.begin.x;
@@ -162,15 +176,74 @@
             }
             direction = (current < dest) ? 1 : -1;
             
-            while(true)
+            if (thickness == 1)
             {
-                if (isHolizonal)
-                    setPixel(bitmapview, current, seg.begin.y, color);
-                else
-                    setPixel(bitmapview, seg.begin.x, current, color);
+                while(true)
+                {
+                    if (isHolizonal)
+                        setPixel(bitmapview, current, seg.begin.y, color);
+                    else
+                        setPixel(bitmapview, seg.begin.x, current, color);
+                    
+                    if (current == dest) break;
+                    current += direction;
+                }
+            }
+            else
+            {
+                var tex_y_begin : int;
+                var tex_y_end : int;
+                var tex_x_begin : int;
+                var tex_x_end : int;
                 
-                if (current == dest) break;
-                current += direction;
+                if (isHolizonal)
+                {
+                    if (current < dest)
+                    {
+                        tex_y_begin = seg.begin.y;
+                        tex_y_end = tex_y_begin + thickness;
+                        tex_x_begin = current;
+                        tex_x_end = dest;
+                    }
+                    else
+                    {
+                        tex_y_begin = seg.begin.y;
+                        tex_y_end = tex_y_begin + thickness;
+                        tex_x_begin = dest;
+                        tex_x_end = current;
+                    }
+                    
+                    if (tex)
+                        for (py = tex_y_begin, px2 = 0; py < tex_y_end; py++, px2++)
+                            for (px = tex_x_begin; px < tex_x_end; px++)
+                                setPixel(bitmapview, px, py, getPixel(tex, px % tex.width, px2));
+                    else
+                        bitmapview.fillRect(new Rectangle(tex_x_begin, seg.begin.y, tex_x_end - tex_x_begin, thickness), color);
+                }
+                else
+                {
+                    if (current < dest)
+                    {
+                        tex_x_begin = seg.begin.x;
+                        tex_x_end = tex_x_begin + thickness;
+                        tex_y_begin = current;
+                        tex_y_end = dest;
+                    }
+                    else
+                    {
+                        tex_x_begin = seg.begin.x;
+                        tex_x_end = tex_x_begin + thickness;
+                        tex_y_begin = dest;
+                        tex_y_end = current;
+                    }
+                    
+                    if (tex)
+                        for (py = tex_y_begin; py < tex_y_end; py++)
+                            for (px = tex_x_begin, px2 = 0; px < tex_x_end; px++)
+                                setPixel(bitmapview, px, py, getPixel(tex, px2++, py % tex.height));
+                    else
+                        bitmapview.fillRect(new Rectangle(tex_x_begin, tex_y_begin, thickness, tex_y_end - tex_y_begin), color);
+                }
             }
         }
 
@@ -310,6 +383,8 @@
         public static function hitTest2(b1 : BitmapData, b1Loc : Point, b2 : BitmapData, b2Loc : Point) :IntersectionInfo
         {
             if (!b1.transparent) throw new Error('b1 is not transparent bitmap');
+            
+            b1Loc = b1Loc.clone();
 
             const intersection : IntersectionInfo = new IntersectionInfo(b1, b1Loc, b2, b2Loc);
             

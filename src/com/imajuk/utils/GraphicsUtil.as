@@ -1,10 +1,11 @@
 ﻿package com.imajuk.utils 
 {
-    import com.imajuk.geom.Rect;
-    import com.imajuk.geom.Circle;
-    import com.imajuk.geom.IGeom;
+    import avmplus.getQualifiedClassName;
+
     import com.imajuk.color.Color;
+    import com.imajuk.geom.Circle;
     import com.imajuk.geom.Doughnut;
+    import com.imajuk.geom.IGeom;
     import com.imajuk.geom.Segment;
     import com.imajuk.interfaces.IMotionGuide;
 
@@ -89,6 +90,13 @@
             canvas.endFill();
         }
 
+        public static function drawSegmentWithSegment(canvas : Graphics, seg : Segment, color : Color, thickness : int) : void
+        {
+            setupGraphicsWithColors(null, canvas, color, thickness);
+            canvas.moveTo(seg.begin.x, seg.begin.y);
+            canvas.lineTo(seg.end.x, seg.end.y);
+        }
+
         /**
          * 点を描く
          */
@@ -101,11 +109,19 @@
         /**
          * 円を描く
          */
-        public static function drawCircle(canvas : Graphics, size : int, color : uint = 0, x : Number = 0, y : Number = 0) : void
+        public static function drawCircle(canvas : Graphics, circle:Circle, fill : Color, line : Color = null, tickness : Number = 0) : void
         {
-            canvas.beginFill(color);
-            canvas.drawCircle(x, y, size*.5);
+            setupGraphicsWithColors(fill, canvas, line, tickness);
+            canvas.drawCircle(circle.x, circle.y, circle.radius);
             canvas.endFill();
+        }
+
+        private static function setupGraphicsWithColors(fill : Color, canvas : Graphics, line : Color, tickness : Number) : void
+        {
+            if (fill)
+                canvas.beginFill(fill.rgb, isNaN(fill.alpha) ? 1 : fill.alpha / 255);
+            if (line)
+                canvas.lineStyle(tickness, line.rgb, isNaN(line.alpha) ? 1 : line.alpha / 255);
         }
 
         /**
@@ -113,30 +129,36 @@
          */
         public static function drawDoughnut(canvas:Graphics, daughnut:Doughnut, color:uint = 0):void
         {
-            canvas.beginFill(color);
-            canvas.drawCircle(daughnut.x, daughnut.y, daughnut.outside.radius);            canvas.drawCircle(daughnut.x, daughnut.y, daughnut.inside.radius);
+            canvas.beginFill(color);            canvas.drawCircle(daughnut.x, daughnut.y, daughnut.outside.radius);
+            canvas.drawCircle(daughnut.x, daughnut.y, daughnut.inside.radius);
             canvas.endFill();
         }
         /**
-         * 四角形を描く
-         */        public static function drawRect(canvas:Graphics, rect:Rectangle, color:uint = 0, alpha:Number = 1):void        {
-            canvas.beginFill(color, alpha);
+         * 四角形を描く         */        public static function drawRect(canvas:Graphics, rect:Rectangle, fill : Color, line : Color = null, tickness : Number = 0):void
+        {
+            if (fill)
+                canvas.beginFill(fill.rgb, isNaN(fill.alpha) ? 1 : fill.alpha / 255);
+            if (line)
+                canvas.lineStyle(tickness, line.rgb, isNaN(line.alpha) ? 1 : line.alpha / 255);
+
             canvas.drawRect(rect.x, rect.y, rect.width, rect.height);
             canvas.endFill();
         }
 		/**
 		 * 四角形が描画されたSpriteを返す
 		 */
-        public static function getRectSprite(rect:Rectangle, color:uint = 0, alpha:Number = 1):Sprite
+        public static function getRectSprite(rect:Rectangle, fill : Color, line : Color = null, tickness : Number = 0):Sprite
         {
             var s:Sprite = new Sprite();
-            drawRect(s.graphics, rect, color, alpha);
+            drawRect(s.graphics, rect, fill, line, tickness);
             return s;
         }
 
-        public static function drawCross(canvas : Graphics, p : Point, color : int = 0x0, size : int = 2, thickness:Number = 1, alpha : Number = 1) : void
+        public static function drawCross(canvas : Graphics, circle : Circle, fill : Color, line : Color = null, tickness : Number = 0) : void
         {
-            canvas.lineStyle(thickness, color, alpha);
+            const    p : Point = new Point(circle.x, circle.y),
+                  size : Number = circle.size;
+            setupGraphicsWithColors(fill, canvas, line, tickness);
             canvas.moveTo(p.x - size, p.y - size);
             canvas.lineTo(p.x + size, p.y + size);
             canvas.moveTo(p.x + size, p.y - size);
@@ -161,15 +183,18 @@
 
         public static function drawGeom(geom : IGeom, graphics : Graphics, fill : Color, line : Color = null, tickness : Number = 0) : void
         {
-            if (fill)
-                graphics.beginFill(fill.rgb, isNaN(fill.alpha) ? 1 : fill.alpha / 255);
-            if (line)
-                graphics.lineStyle(tickness, line.rgb, isNaN(line.alpha) ? 1 : line.alpha / 255);
-
-            if (geom is Circle)
-                graphics.drawCircle(geom.x, geom.y, Circle(geom).radius);
-            else if (geom is Rect)
-                graphics.drawRect(geom.x, geom.y, geom.width, geom.height);
+            switch (getQualifiedClassName(geom))
+            {
+                case 'com.imajuk.geom::Point2D':
+                    drawCross(graphics, new Circle(geom.x, geom.y, 1), fill, line, tickness);
+                    break;
+                case 'com.imajuk.geom::Circle':
+                    drawCircle(graphics, Circle(geom), fill, line, tickness);
+                    break;
+                case 'com.imajuk.geom::Rect':
+                    drawRect(graphics, new Rectangle(geom.x, geom.y, geom.width, geom.height), fill, line, tickness);
+                    break;
+            }
         }
         
         public static function setGraphicsStyle(canvas : Graphics, fill : Color, line : Color, tickness : int) : void
@@ -179,5 +204,6 @@
             if (line)
                 canvas.lineStyle(tickness, line.rgb, isNaN(line.alpha) ? 1 : line.alpha / 255);
         }
+
     }
 }

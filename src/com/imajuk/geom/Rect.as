@@ -106,6 +106,12 @@
             return _r.containsPoint(new Point(point.x, point.y));
         }
 
+        public function containsCircle(circle : Circle, includeOnLine : Boolean) : Boolean
+        {
+            includeOnLine;
+            return _r.containsRect(circle.bounds);
+        }
+
         public function get left() : Number
         {
             return _r.left;
@@ -124,6 +130,31 @@
         public function get bottom() : Number
         {
             return _r.bottom;
+        }
+
+        public function toRectangle() : Rectangle
+        {
+            return _r.clone();
+        }
+
+        public function get tl() : Point
+        {
+            return new Point(left, top);
+        }
+
+        public function get tr() : Point
+        {
+            return new Point(right, top);
+        }
+
+        public function get bl() : Point
+        {
+            return new Point(left, bottom);
+        }
+
+        public function get br() : Point
+        {
+            return new Point(right, bottom);
         }
     }
 }

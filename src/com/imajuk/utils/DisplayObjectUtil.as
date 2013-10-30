@@ -1,5 +1,7 @@
 ﻿package com.imajuk.utils 
 {
+    import avmplus.getQualifiedClassName;
+
     import com.imajuk.constants.Direction;
     import com.imajuk.constants.Geom;
     import com.imajuk.constructions.DocumentClass;
@@ -451,9 +453,9 @@
          */        public static function containsDeeply(container:DisplayObjectContainer, target:DisplayObject):Boolean        {
             var f:Function = function(c:DisplayObjectContainer):Boolean
             {
-                var child:DisplayObject = c.getChildAt(i); 
                 for (var i:int = 0;i < c.numChildren; i++) 
                 {
+                    var child:DisplayObject = c.getChildAt(i); 
                     if (child is DisplayObjectContainer)
                         return f(child as DisplayObjectContainer);
                     else
@@ -1111,6 +1113,20 @@
                     stage.removeEventListener(FullScreenEvent.FULL_SCREEN, arguments.callee);
                 });
             }
+        }
+
+        public static function extractObject(container:DisplayObjectContainer, className : String) : *
+        {
+            var o : *;
+            for (var i : int = 0; i < container.numChildren; i++)
+            {
+                const child : DisplayObject = container.getChildAt(i);
+                if (getQualifiedClassName(child) == className)
+                    return child;
+                else if (child is DisplayObjectContainer)
+                    if (Boolean(o = extractObject(child as DisplayObjectContainer, className))) break;
+            }
+            return o;
         }
     }
 }
