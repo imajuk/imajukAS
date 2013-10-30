@@ -51,10 +51,13 @@
         function rollOutEffect() : void
         
         function upEffect() : void;
+        function disableEffect() : void;
         
         function removeBehaviorAll() : void;
 
         function lockBehaviors() : void;
+
         function unlockBehaviors() : void;
+
     }
 }

@@ -234,6 +234,11 @@
             _forEach("upEffect");
         }
         
+        public function disableEffect() : void
+        {
+            _forEach("disableEffect");
+        }
+        
         public function lockBehaviors() : void
         {
             _forEach("lockBehavior");
