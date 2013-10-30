@@ -15,7 +15,7 @@
 	 */
 	public class DocumentClass extends MovieClip 
 	{
-        private static var isInitialized : Boolean;
+        protected static var isAvailable : Boolean;
 
         public function DocumentClass (
 		                                  quality:String = StageQuality.LOW,
@@ -34,7 +34,7 @@
             {
             	removeEventListener(Event.ADDED_TO_STAGE, arguments.callee);
             	
-            	isInitialized = true;
+            	isAvailable = true;
             	
                 //URLパラメータの取得
                 _flashVars = BrowserUtils.getURLParameters();
@@ -93,7 +93,7 @@
         private static var _flashVars : Object;
         public static function get flashVars() : Object
         {
-        	if (!isInitialized)
+        	if (!isAvailable)
         	   throw new Error("flashVarsプロパティはstart()が呼ばれるまで使用できません.");
         	   
         	return _flashVars;
@@ -101,7 +101,7 @@
 
         public static function hasFlashVar(parameterName : String) : Boolean
         {
-            if (!isInitialized)
+            if (!isAvailable)
                 throw new Error("hasFlashVarはstart()が呼ばれるまで使用できません.");
         	
             return _flashVars.hasOwnProperty(parameterName);
@@ -109,7 +109,7 @@
 
         public static function getFlashVar(parameterName : String) : Object
         {
-            if (!isInitialized)
+            if (!isAvailable)
                 throw new Error("getFlashVarはstart()が呼ばれるまで使用できません.");
         	
             return _flashVars[parameterName];
