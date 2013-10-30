@@ -27,7 +27,9 @@
 	        						...param
         						) : DisplayObject
         {
-            var parent:DisplayObjectContainer = param[0].parent;
+            var asset : DisplayObject = param[0], lv:int;
+            const parent:DisplayObjectContainer = asset.parent;
+            if (parent) lv = parent.getChildIndex(asset);
             
             //ラッパーになるインスタンスを生成
             try
@@ -47,7 +49,7 @@
         		throw new Error(klass + "でラップを試みましたが失敗しました." + klass + "はIDisplayObjectWrapperではありません.");
         	
             //アセットを取得
-            var asset : DisplayObject = IDisplayObjectWrapper(wrapper).asset;
+            asset = IDisplayObjectWrapper(wrapper).asset;
             if (!asset)
         		throw new Error(klass + "でラップを試みましたが失敗しました.assetプロパティが正しく実装されていません.");
             var x:Number = asset.x;
@@ -62,7 +64,7 @@
             
             //アセットがコンテナに配置されていた場合はラッパーと置き換える
             if (parent)
-                parent.addChild(wrapper);
+                parent.addChildAt(wrapper, lv);
         	
             return wrapper;
         }
