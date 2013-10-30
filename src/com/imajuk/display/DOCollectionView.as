@@ -30,11 +30,12 @@
         public static function create(
                                     imageContainer : Sprite, 
                                     onBehavior     : IButtonBehavior = null, 
-                                    offBehavior    : IButtonBehavior = null
+                                    offBehavior    : IButtonBehavior = null,
+                                    autoResetVisible : Boolean = true
                                ) : DOCollectionView
         {
             return AssetWrapper.wrapAsDisplayObject(
-                        DOCollectionView, imageContainer, onBehavior, offBehavior
+                        DOCollectionView, imageContainer, onBehavior, offBehavior, autoResetVisible
                    ) as DOCollectionView;
         }
        /**
@@ -43,6 +44,12 @@
         */
         public var optimized : Boolean = true;
         public var lockTransition : Boolean;
+        public var cycle : Boolean;
+        /**
+         * 方向が変わったときにonとoffのビヘイビアを切り替える
+         */
+        public var swapBehaviorByDirection : Boolean;
+
         
         //--------------------------------------------------------------------------
         //
@@ -55,6 +62,9 @@
         protected var imgs : Array;
         protected var order : Array;
         public var isLock : Boolean;
+        private var _prevIndex : int;
+        private var _currentDirection : int;
+        private var _prevDirection : int;
 
         //--------------------------------------------------------------------------
         //
@@ -187,6 +197,7 @@
         public function next() : ITween
         {
             if (lockTransition && isLock) return NULL_TWEEN;
+            if (!cycle && atEnd) return NULL_TWEEN;
             
             _current = incrementIndex();
             return behave();
@@ -195,6 +206,7 @@
         public function previous() : ITween
         {
             if (lockTransition && isLock) return NULL_TWEEN;
+            if (!cycle && atBegin) return NULL_TWEEN;
             
             _current = decrementIndex();
             return behave();
@@ -216,6 +228,16 @@
         {
             if (lockTransition && isLock) return NULL_TWEEN;
             isLock = true;
+            
+            _prevDirection = _currentDirection;
+            _currentDirection = direction;
+            if (swapBehaviorByDirection && _prevDirection != 0 && _prevDirection != _currentDirection)
+            {
+                //swap behavior on/off by direction
+                const temp:Dictionary = imgToOnBehavior;
+                imgToOnBehavior = imgToOffBehavior;
+                imgToOffBehavior = temp; 
+            }
 
             //------------------------
             // Setup View Depth
@@ -274,12 +296,14 @@
 
         protected function setIndex(index : int) : DisplayObject
         {
+            _prevIndex = _currentIndex;
             _currentIndex = index;
             return updateCurrentImage();
         }
 
         protected function incrementIndex() : DisplayObject
         {
+            _prevIndex = _currentIndex;
             _currentIndex++;
             validateIndex();
                 
@@ -288,6 +312,7 @@
 
         protected function decrementIndex() : DisplayObject
         {
+            _prevIndex = _currentIndex;
             _currentIndex--;
             validateIndex();
                 
@@ -311,7 +336,26 @@
         protected function forEach(f : Function) : void
         {
             order.forEach(f);
-//            DisplayObjectUtil.getAllChildren(_imgContainer).forEach(f);
+        }
+
+        public function get atBegin() : Boolean
+        {
+            return _currentIndex == 0;
+        }
+
+        public function get atEnd() : Boolean
+        {
+            return _currentIndex == _total-1;
+        }
+
+        public function get direction() : int
+        {
+            if (_currentIndex == _prevIndex)
+                return 0;
+            else if (_currentIndex > _prevIndex)
+                return 1;
+            else
+                return -1;
         }
     }
 }
